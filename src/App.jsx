@@ -3,43 +3,48 @@ import { useState, useEffect } from "react";
 import Loading from "./Loading";
 import TabSwitch from "./TabSwitch";
 import Tab from "./Tab";
+// import jobs from "./data";
 const url = "https://course-api.com/react-tabs-project";
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [data, setData] = useState(null);
+  const [data, setData] = useState([]);
+  const [currentItem, setCurrentItem] = useState(0);
+  const companies = [];
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     setIsLoading(true);
-  //     try {
-  //       const response = await fetch(api);
-  //       const people = await response.json();
-  //       console.log(people);
-  //       setData(people);
-  //       setIsLoading(false);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
-  //   fetchData();
-  // }, []);
+  const fetchData = async () => {
+    setIsLoading(true);
+    const response = await fetch(url);
+    const newJobs = await response.json();
+    setData(newJobs);
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  data.map((job) => {
+    companies.push(job.company);
+  });
+
+  const filterJobs = (index) => {
+    setCurrentItem(index);
+  };
+
   return (
     <main>
       <div>
-        <button
-          type="button"
-          className="btn img"
-          onClick={() => setIsLoading(!isLoading)}
-        >
-          Switch Loading
-        </button>
         {isLoading ? (
           <Loading />
         ) : (
           <section className="jobs-center">
-            <TabSwitch />
-            <Tab />
+            <TabSwitch
+              companies={companies}
+              currentItem={currentItem}
+              filter={filterJobs}
+            />
+            <Tab job={data[currentItem]} />
           </section>
         )}
       </div>
